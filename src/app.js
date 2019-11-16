@@ -34,7 +34,6 @@ app.get("/", async (req, res) => {
 	res.send("Welcome to development world")
 })
 
-
 // Catch-all
 app.get("*", async (req, res, next) => {
 	const err = new Error("endpoint not exist")
