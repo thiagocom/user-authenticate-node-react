@@ -2,6 +2,7 @@ const express = require("express")
 const logger = require("morgan")
 const rfs = require("rotating-file-stream")
 const cors = require("cors")
+const mongosoe = require("mongoose")
 require("dotenv").config()
 
 const userRoutes = require("./routes/user.routes")
@@ -28,6 +29,11 @@ app.use(cors())
 
 // Routes
 app.use(userRoutes)
+
+mongoose.set("useNewUrlParser", true)
+mongoose.connect(process.env.CONNECT_STRING)
+const { connection } = mongoose
+connection.on("error", err => console.error(err))
 
 // Endpoint protect
 app.get("/", async (req, res) => {
