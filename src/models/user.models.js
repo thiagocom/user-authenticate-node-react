@@ -20,13 +20,17 @@ UserSchema.methods.compare = async function(password) {
 }
 
 // Middleware before save model
-UserSchema.pre("save", function(next) {
-	try {
-		const hash = await bcrypt.hash(this.password, 10)
-		this.password = hash
+UserSchema.pre("save", async function(next) {
+	if (this.isNew || this.isModified("password")) {
+		try {
+			const hash = await bcrypt.hash(this.password, 10)
+			this.password = hash
+			next()
+		} catch (err) {
+			next(err)
+		}
+	} else {
 		next()
-	} catch (err) {
-		next(err)
 	}
 })
 

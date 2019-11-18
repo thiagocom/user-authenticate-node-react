@@ -2,10 +2,11 @@ const express = require("express")
 const logger = require("morgan")
 const rfs = require("rotating-file-stream")
 const cors = require("cors")
-const mongosoe = require("mongoose")
+const mongoose = require("mongoose")
 require("dotenv").config()
 
 const userRoutes = require("./routes/user.routes")
+const { authenticate } = require("./middlewares")
 
 // App
 const app = express()
@@ -31,12 +32,14 @@ app.use(cors())
 app.use(userRoutes)
 
 mongoose.set("useNewUrlParser", true)
+mongoose.set("useUnifiedTopology", true)
+mongoose.set("useCreateIndex", true)
 mongoose.connect(process.env.CONNECT_STRING)
 const { connection } = mongoose
 connection.on("error", err => console.error(err))
 
 // Endpoint protect
-app.get("/", async (req, res) => {
+app.get("/", authenticate, async (req, res) => {
 	res.send("Welcome to development world")
 })
 
@@ -50,7 +53,7 @@ app.get("*", async (req, res, next) => {
 // Error handler
 app.use(async (err, req, res, next) => {
 	const statusCode = err.statusCode || 500
-	res.status(statusCode).json({ error: err.message })
+	res.status(statusCode).json({ success: false, error: err.message })
 })
 
 module.exports = app
